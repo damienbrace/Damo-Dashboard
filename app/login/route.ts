@@ -16,14 +16,14 @@ export async function POST(request: Request) {
   const sessionSecret = getSessionSecret();
 
   if (!expectedPassword || !sessionSecret) {
-    return NextResponse.redirect(new URL("/?error=missing-config", request.url));
+    return NextResponse.redirect(new URL("/?error=missing-config", request.url), 303);
   }
 
   if (email !== expectedEmail || password !== expectedPassword) {
-    return NextResponse.redirect(new URL("/?error=invalid", request.url));
+    return NextResponse.redirect(new URL("/?error=invalid", request.url), 303);
   }
 
-  const response = NextResponse.redirect(new URL("/home", request.url));
+  const response = NextResponse.redirect(new URL("/home", request.url), 303);
   response.cookies.set({
     httpOnly: true,
     maxAge: 60 * 60 * 24 * 30,
