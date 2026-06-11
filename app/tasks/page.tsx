@@ -1,20 +1,13 @@
-import { ChevronDown, Circle, Filter, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronDown, Circle, Database, Filter, Plus, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { addTask, completeTask } from "./actions";
+import { getTasks, splitTasks } from "@/lib/tasks";
 
-const todayTasks = [
-  { title: "Finish dashboard", priority: "High", date: "Today" },
-  { title: "Add authentication", priority: "High", date: "Today" },
-  { title: "Write README", priority: "Medium", date: "Today" },
-  { title: "Gym", priority: "Low", date: "Today" }
-];
+export default async function TasksPage() {
+  const { source, tasks } = await getTasks();
+  const { completed, today, upcoming } = splitTasks(tasks);
+  const isConnected = source === "supabase";
 
-const upcomingTasks = [
-  { title: "Call electrician", date: "Tomorrow" },
-  { title: "Plan Japan trip", date: "Sat, 24 May" },
-  { title: "Buy domain", date: "Mon, 26 May" }
-];
-
-export default function TasksPage() {
   return (
     <AppShell title="Tasks" subtitle="" actionLabel="New Task">
       <div className="tasks-workspace">
@@ -24,7 +17,29 @@ export default function TasksPage() {
             <button className="task-tab" type="button">Projects</button>
             <button className="task-tab" type="button">Completed</button>
           </div>
+          <span className={isConnected ? "task-source-badge task-source-connected" : "task-source-badge"}>
+            <Database className="h-3.5 w-3.5" />
+            {isConnected ? "Supabase" : "Demo data"}
+          </span>
         </div>
+
+        <form action={addTask} className="task-add-form">
+          <input aria-label="Task title" name="title" placeholder="Add a task..." />
+          <select aria-label="Task priority" defaultValue="Medium" name="priority">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <select aria-label="Task due date" defaultValue="Today" name="dueLabel">
+            <option>Today</option>
+            <option>Tomorrow</option>
+            <option>Upcoming</option>
+          </select>
+          <button type="submit">
+            <Plus className="h-4 w-4" />
+            Add
+          </button>
+        </form>
 
         <div className="tasks-filter-row">
           <div className="task-chip-group">
@@ -42,27 +57,36 @@ export default function TasksPage() {
           </button>
         </div>
 
-        <TaskGroup title="Today" count={4}>
-          {todayTasks.map((task) => (
+        <TaskGroup title="Today" count={today.length}>
+          {today.map((task) => (
             <TaskRow
-              key={task.title}
+              id={task.id}
+              key={task.id}
               title={task.title}
-              priority={task.priority}
-              date={task.date}
+              priority={task.priority ?? undefined}
+              date={task.dueLabel}
+              canComplete={isConnected}
             />
           ))}
         </TaskGroup>
 
-        <TaskGroup title="Upcoming" count={3}>
-          {upcomingTasks.map((task) => (
-            <TaskRow key={task.title} title={task.title} date={task.date} />
+        <TaskGroup title="Upcoming" count={upcoming.length}>
+          {upcoming.map((task) => (
+            <TaskRow
+              canComplete={isConnected}
+              date={task.dueLabel}
+              id={task.id}
+              key={task.id}
+              priority={task.priority ?? undefined}
+              title={task.title}
+            />
           ))}
         </TaskGroup>
 
         <div className="completed-summary">
           <button type="button">
             <span>Completed</span>
-            <strong>12</strong>
+            <strong>{isConnected ? completed.length : 12}</strong>
             <ChevronDown className="h-4 w-4" />
           </button>
         </div>
@@ -92,17 +116,30 @@ function TaskGroup({
 }
 
 function TaskRow({
+  id,
   title,
   priority,
-  date
+  date,
+  canComplete
 }: {
+  id: string;
   title: string;
   priority?: string;
   date: string;
+  canComplete: boolean;
 }) {
   return (
     <div className="task-row">
-      <Circle className="task-check h-4 w-4" />
+      {canComplete ? (
+        <form action={completeTask}>
+          <input name="id" type="hidden" value={id} />
+          <button className="task-complete-button" title={`Complete ${title}`} type="submit">
+            <Circle className="task-check h-4 w-4" />
+          </button>
+        </form>
+      ) : (
+        <Check className="task-check h-4 w-4" />
+      )}
       <span className="task-name">{title}</span>
       {priority ? <span className={`priority-pill priority-${priority.toLowerCase()}`}>{priority}</span> : null}
       <time>{date}</time>

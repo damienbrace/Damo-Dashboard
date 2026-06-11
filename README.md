@@ -18,3 +18,9 @@ After setting Supabase env vars, verify the connection at:
 ```txt
 /api/supabase/health
 ```
+
+## Supabase Tables
+
+Run `supabase/tasks.sql` in the Supabase SQL Editor to create the MVP tasks table and seed the first task rows.
+
+The initial task policies allow anon read/write because this app currently uses a custom login gate instead of Supabase Auth. Tighten these policies before storing sensitive personal data.
