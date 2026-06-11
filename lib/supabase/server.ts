@@ -27,10 +27,9 @@ export async function checkSupabaseConnection() {
   }
 
   try {
-    const response = await fetch(`${url.replace(/\/$/, "")}/rest/v1/`, {
+    const response = await fetch(`${url.replace(/\/$/, "")}/auth/v1/settings`, {
       headers: {
-        apikey: anonKey,
-        Authorization: `Bearer ${anonKey}`
+        apikey: anonKey
       },
       method: "GET"
     });
