@@ -581,6 +581,17 @@ textarea {
   gap: 21px;
 }
 
+.login-error {
+  margin: 0;
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  border-radius: 9px;
+  background: rgba(127, 29, 29, 0.16);
+  padding: 11px 13px;
+  color: #fca5a5;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .login-form label {
   display: grid;
   gap: 10px;
@@ -665,9 +676,11 @@ textarea {
   display: grid;
   min-height: 53px;
   place-items: center;
+  border: 0;
   border-radius: 10px;
   background: linear-gradient(180deg, #25e2ef, #0db5d2);
   color: white;
+  cursor: pointer;
   font-size: 16px;
   font-weight: 760;
   text-decoration: none;

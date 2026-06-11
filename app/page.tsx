@@ -31,7 +31,21 @@ const features = [
   }
 ];
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Promise<{
+    error?: string;
+  }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const errorMessage =
+    params?.error === "missing-config"
+      ? "Login is not configured yet. Add the password and session secret in Vercel."
+      : params?.error === "invalid"
+        ? "Email or password is incorrect."
+        : "";
+
   return (
     <main className="login-page">
       <section className="login-shell">
@@ -125,12 +139,14 @@ export default function LoginPage() {
               <span />
             </div>
 
-            <form className="login-form">
+            <form action="/login" className="login-form" method="post">
+              {errorMessage ? <p className="login-error">{errorMessage}</p> : null}
+
               <label>
                 <span>Email address</span>
                 <div className="login-input-shell">
                   <Mail className="h-5 w-5" />
-                  <input placeholder="you@example.com" type="email" />
+                  <input defaultValue="damienbrace@gmail.com" name="email" placeholder="you@example.com" type="email" />
                 </div>
               </label>
 
@@ -141,7 +157,7 @@ export default function LoginPage() {
                 </span>
                 <div className="login-input-shell">
                   <LockKeyhole className="h-5 w-5" />
-                  <input placeholder="••••••••••••" type="password" />
+                  <input name="password" placeholder="Password" type="password" />
                 </div>
               </label>
 
@@ -156,9 +172,9 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              <Link className="login-submit" href="/home">
+              <button className="login-submit" type="submit">
                 Sign in
-              </Link>
+              </button>
             </form>
 
             <p className="login-create-account">
